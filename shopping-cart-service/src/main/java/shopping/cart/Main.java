@@ -14,8 +14,7 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
-    ActorSystem<Void> system =
-            ActorSystem.create(Behaviors.empty(), "shopping-cart-service");
+    ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "shopping-cart-service");
     try {
       init(system);
     } catch (Exception e) {
@@ -28,10 +27,14 @@ public class Main {
     AkkaManagement.get(system).start();
     ClusterBootstrap.get(system).start();
 
+    
+    ShoppingCart.init(system);
+    
+
     Config config = system.settings().config();
     String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
     int grpcPort = config.getInt("shopping-cart-service.grpc.port");
-    ShoppingCartService grpcService = new ShoppingCartServiceImpl();
+    ShoppingCartService grpcService = new ShoppingCartServiceImpl(system);
     ShoppingCartServer.start(grpcInterface, grpcPort, system, grpcService);
   }
 }
